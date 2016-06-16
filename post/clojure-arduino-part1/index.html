@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en-gb">
+<head>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  	<meta property="og:title" content=" Using Clojure with Arduino - Part1 &middot;  Seeking Clarity" />
+  	<meta property="og:site_name" content="Seeking Clarity" />
+  	<meta property="og:url" content="http://dayooliyide.com/post/clojure-arduino-part1/" />
+
+    
+  	<meta property="og:type" content="article" />
+
+    <meta property="og:article:published_time" content="2016-06-16T12:08:52&#43;01:00" />
+
+    
+    <meta property="og:article:tag" content="Clojure" />
+    
+    <meta property="og:article:tag" content="Arduino" />
+    
+    
+
+  <title>
+     Using Clojure with Arduino - Part1 &middot;  Seeking Clarity
+  </title>
+
+    <meta name="description" content="The ability to simplify means to eliminate the unnecessary so that the necessary may speak" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="http://dayooliyide.com/images/favicon.ico">
+	  <link rel="apple-touch-icon" href="http://dayooliyide.com/images/apple-touch-icon.png" />
+
+    <link rel="stylesheet" type="text/css" href="http://dayooliyide.com/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="http://dayooliyide.com/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400|Inconsolata" />
+
+   
+   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.4.0/styles/hybrid.min.css">
+   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.4.0/highlight.min.js"></script>
+   <script>hljs.initHighlightingOnLoad();</script>
+   
+
+    
+      
+          <link href="http://dayooliyide.com/index.xml" rel="alternate" type="application/rss+xml" title="Seeking Clarity" />
+      
+      
+    
+    <meta name="generator" content="Hugo 0.15" />
+
+    <link rel="canonical" href="http://dayooliyide.com/post/clojure-arduino-part1/" />
+
+    
+
+    
+</head>
+<body class="nav-closed">
+
+  <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+        
+        
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="/">Home</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="/about/">About me</a>
+            </li>
+        
+    </ul>
+    
+    
+    <a class="subscribe-button icon-feed" href="http://dayooliyide.com/index.xml">Subscribe</a>
+    
+</div>
+<span class="nav-cover"></span>
+
+
+ <div class="site-wrapper">
+
+
+
+
+<header class="main-header post-head no-cover">
+  <nav class="main-nav clearfix">
+
+
+  
+  
+      <a class="menu-button" href="#"><span class="burger">&#9776;</span><span class="word">Menu</span></a>
+  
+  </nav>
+</header>
+
+
+
+<main class="content" role="main">
+
+
+
+
+  <article class="post post">
+
+    <header class="post-header">
+        <h1 class="post-title">Using Clojure with Arduino - Part1</h1>
+        <small></small>
+
+        <section class="post-meta">
+        
+          <time class="post-date" datetime="2016-06-16T12:08:52&#43;01:00">
+            Jun 16, 2016
+          </time>
+        
+         
+          <span class="post-tag small"><a href="http://dayooliyide.com/tags/clojure/">#Clojure</a></span>
+         
+          <span class="post-tag small"><a href="http://dayooliyide.com/tags/arduino/">#Arduino</a></span>
+         
+        </section>
+    </header>
+
+    <section class="post-content">
+      
+
+<p>This is the first part of a series of posts, where I explore and create various Arduino projects using
+Clojure as the main programming language.</p>
+
+<p>This post will guide you through being able to connect to an Arduino board (uno), using
+Clojure to sends commands to to it and finally using the Arduino&rsquo;s LED as a morse code
+transmitter.</p>
+
+<h2 id="requirements:63f754f3e8a08c9d0f1e05cdc34c3d1b">Requirements</h2>
+
+<h3 id="hardware:63f754f3e8a08c9d0f1e05cdc34c3d1b">Hardware</h3>
+
+<ul>
+<li><a href="https://www.amazon.co.uk/dp/B00PHY3HH2">Arduino Uno</a></li>
+<li>USB cable (male to female)</li>
+<li>Your computer</li>
+</ul>
+
+<h3 id="software:63f754f3e8a08c9d0f1e05cdc34c3d1b">Software</h3>
+
+<ul>
+<li><a href="https://www.arduino.cc/en/Main/Software">Arduino IDE</a></li>
+<li><a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html">Java 8</a></li>
+<li><a href="http://leiningen.org">Leiningen</a></li>
+</ul>
+
+<h2 id="background-knowledge:63f754f3e8a08c9d0f1e05cdc34c3d1b">Background Knowledge</h2>
+
+<p>After installing <a href="https://www.arduino.cc/en/Guide/HomePage">Arduino IDE</a>, <a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html">Java 8</a> and <a href="http://leiningen.org">Leiningen</a> on your computer, your computer should be ready.
+But before we proceed there are a few important concepts that should be understood.</p>
+
+<h3 id="serial-ports:63f754f3e8a08c9d0f1e05cdc34c3d1b">Serial Ports</h3>
+
+<p>The Arduino Uno board uses digital pins 0 and 1 for direct communication, it is possible to
+communicate with the these pins via a USB to Serial chip on the Arduino board.
+Thus when the Arduino board is connected via USB to a computer, it appears as serial port.</p>
+
+<p>When the board is connected to your computer it will appear as serial device, and all the
+communication (uploading sketches or sending firmata commands) will be carried out using
+serial communication</p>
+
+<h3 id="firmata:63f754f3e8a08c9d0f1e05cdc34c3d1b">Firmata</h3>
+
+<p>When staring up, the Arduino board runs a program (stored in it&rsquo;s flash memory) called the bootloader.
+The bootloader carries out the following actions in the given order -</p>
+
+<ul>
+<li>Check to see if another program (e.g sketch) is being uploaded, if so, write the
+uploaded program into lower part of the flash memory.</li>
+<li>Run and pass control over to whatever program is stored in the lower part of the flash memory</li>
+</ul>
+
+<p>When using the Arduino IDE to upload a program to Arduino, a reset signal is sent to the board.
+This triggers the bootloader to run. As per the above actions, the bootloader
+then notices that the IDE is attempting to upload a sketch/program, it accepts the sketch and stores
+the sketch/program in the lower part of the flash memory and runs it.
+<em>Note: There&rsquo;s a reset button on the Arduino board that can also be used to reset the board.</em></p>
+
+<p><strong><a href="https://github.com/firmata/protocol">Firmata</a></strong> is a communication protocol. It allows you to
+send commands (and get responses) to a microcontroller.
+Arduino IDE comes with sketches/programs that implement the Firmata protocol.
+These programs are written in C++ and are under the <code>File -&gt; Examples -&gt; Firmata</code> Menu in the
+Arduino IDE.  Some of these Firmata sketches implement Firmata protocol over different
+physical interfaces (e.g StandardFirmataWifi communicates vi a Wifi shield).</p>
+
+<p>For what we are doing, the most important concept to understand is that a Firmata
+sketch/program is a continously running program that the Arduino bootloader will load/run.
+Once running, it will execute commands sent via the Firmata protocol and send responses
+via the Firmata protocol.</p>
+
+<h2 id="connect-your-board:63f754f3e8a08c9d0f1e05cdc34c3d1b">Connect your board</h2>
+
+<p>Connect and setup your board by following the appropriate OS guide below</p>
+
+<ul>
+<li><a href="https://www.arduino.cc/en/Guide/Windows">Windows Setup Guide</a></li>
+<li><a href="https://www.arduino.cc/en/Guide/MacOSX">Mac Os X Setup Guide</a></li>
+<li><a href="https://www.arduino.cc/en/Guide/Linux">Linux Setup Guide</a></li>
+</ul>
+
+<p>If you are having problems connecting to your Arduino board please consult one of
+the following links</p>
+
+<ul>
+<li><a href="https://www.arduino.cc/en/Guide/Troubleshooting">General Trouble Shooting Guide</a></li>
+<li>If you have problems accessing the device file in Linux, consult this <a href="http://playground.arduino.cc/Linux/All">page</a> (especially the &ldquo;Serial port permissions&rdquo; section)</li>
+</ul>
+
+<h2 id="communicating-via-the-repl:63f754f3e8a08c9d0f1e05cdc34c3d1b">Communicating via the REPL</h2>
+
+<p>To communicate with the Arduino board from a Clojure REPL, we&rsquo;ll need to have a program
+constantly running on the board which will interpret Firmata commands/requests from a
+Firmata client.</p>
+
+<h3 id="upload-the-firmata-sketch-onto-the-arduino-board:63f754f3e8a08c9d0f1e05cdc34c3d1b">Upload the Firmata Sketch onto the Arduino Board</h3>
+
+<p>After connecting the board to your computer,
+We&rsquo;ll upload the Firmata sketch/program onto the Arduino board, by first selecting
+the <code>File -&gt; Examples -&gt; Firmata -&gt; StandardFirmata</code> Menu Item in the Arduino IDE.
+
+<figure >
+    
+        <img src="/img/clojure-arduino-part1/StandardFirmataMenuItem.jpg" />
+    
+    
+</figure>
+</p>
+
+<p>Check the Menu items <code>Tools -&gt; board</code> and <code>Tools -&gt; port</code> to ensure that the correct
+Arduino board and device file have been selected.
+
+<figure >
+    
+        <img src="/img/clojure-arduino-part1/PortBoardMenuItem.jpg" />
+    
+    
+</figure>
+</p>
+
+<p>Now Upload the Firmata sketch by selecting <code>Sketch -&gt; Upload</code> menu item.
+You should see Tx and Rx leds blinking on the board, but more importantly the Arduino IDE&rsquo;s
+status bar will show the progress and then the message <code>Done uploading</code> when the sketch
+has been successfully uploaded.</p>
+
+<h3 id="use-a-clojure-firmata-client-library:63f754f3e8a08c9d0f1e05cdc34c3d1b">Use a Clojure Firmata Client library</h3>
+
+<p>The client library we&rsquo;ll be using is <a href="https://github.com/peterschwarz/clj-firmata">clj-firmata</a>.
+Create a new project using leiningen e.g
+<pre><code class="bash">lein new sandpit </code></pre></p>
+
+<p>Enter the newly created directory (sandpit) and edit the project.clj to include the
+clj-firmata library.
+<pre><code class="clojure"> (defproject sandpit &ldquo;0.1.0-SNAPSHOT&rdquo;
+  :description &ldquo;FIXME: write description&rdquo;
+  :url &ldquo;<a href="http://example.com/FIXME&quot;">http://example.com/FIXME&quot;</a>
+  :license {:name &ldquo;Eclipse Public License&rdquo;
+            :url &ldquo;<a href="http://www.eclipse.org/legal/epl-v10.html&quot;}">http://www.eclipse.org/legal/epl-v10.html&quot;}</a>
+  :dependencies [[org.clojure/clojure &ldquo;1.7.0&rdquo;]
+                 [clj-firmata &ldquo;2.1.1&rdquo;]])
+</code></pre></p>
+
+<p>Now start up a repl
+<pre><code class="bash">lein repl</code></pre></p>
+
+<p>Require the firmata.core namespace from the clj-firmata library
+<pre><code class="clojure-repl">user=&gt; (require &lsquo;[firmata.core :as fm])
+nil
+</code></pre></p>
+
+<p>Please note the following -</p>
+
+<ul>
+<li>Whenever you use the clj-firmata library to communicate with the board,
+you&rsquo;ll notice the TX and RX LEDs blink as the instructions are sent via
+the firmata protocol to Firmata sketch/program running on the board.</li>
+<li>The RX LED is associated to PIN 0</li>
+<li>The TX LED is associated to PIN 1</li>
+</ul>
+
+<p>Now open a connection to your Arduino board and hold a reference to it.
+<em>Note: this reference is actually a clojure map</em>
+<pre><code class="clojure-repl">user=&gt; (def board (fm/open-serial-board :auto-detect))
+#&lsquo;user/board
+</code></pre></p>
+
+<p>Arduino Uno&rsquo;s board has a LED associated to PIN 13. We are going to switch this LED
+on and off. But before we proceed, we need to ensure that this PIN&rsquo;s mode is set to
+output
+<pre><code class="clojure-repl">user=&gt; (fm/set-pin-mode board 13 :output)
+</code></pre></p>
+
+<p>The above expression will return the board (a clojure map) that was given to it.
+<em>Note: the following expressions will return the board that they are given,
+for now you can ignore it</em></p>
+
+<p>We&rsquo;ll now switch the LED associated with PIN 13 on, by setting that pin&rsquo;s digital value
+to high
+<pre><code class="clojure-repl">user=&gt; (fm/set-digital board 13 :high)
+</code></pre></p>
+
+<p>Then switch it off, by setting the pin&rsquo;s digital value to low
+<pre><code class="clojure-repl">user=&gt; (fm/set-digital board 13 :low)
+</code></pre></p>
+
+<p>Congratulations!! you are now able to send instructions from a clojure repl and
+have them executed on the Arduino Board.</p>
+
+<h3 id="using-the-arduino-board-as-a-basic-morse-code-signaller:63f754f3e8a08c9d0f1e05cdc34c3d1b">Using the Arduino Board as a basic Morse Code Signaller</h3>
+
+<p>What we&rsquo;ve done so far is pretty basic stuff, we can now build on it to do more.</p>
+
+<p><a href="https://en.wikipedia.org/wiki/Morse_code">Morse code</a> is a way of translating
+characters (letters, numbers) into a series of signals (tones, clicks or flashing lights).</p>
+
+<p>By switching the LED attached to PIN 13 on and off, we can create a simple Morse Code
+signaller.</p>
+
+<p>I&rsquo;ve created a small <a href="https://github.com/DayoOliyide/morse-code">clojure library</a> for &ldquo;blinking&rdquo; the onboard LED (PIN 13) and for
+translating characters (letters and numbers) and words into Morse code.</p>
+
+<p>First thing to do is to replace the clj-firmata entry, in the project.clj, with an entry
+for the <a href="https://github.com/DayoOliyide/morse-code">morse code library</a>.
+<pre><code class="clojure"> (defproject sandpit &ldquo;0.1.0-SNAPSHOT&rdquo;
+  :description &ldquo;FIXME: write description&rdquo;
+  :url &ldquo;<a href="http://example.com/FIXME&quot;">http://example.com/FIXME&quot;</a>
+  :license {:name &ldquo;Eclipse Public License&rdquo;
+            :url &ldquo;<a href="http://www.eclipse.org/legal/epl-v10.html&quot;}">http://www.eclipse.org/legal/epl-v10.html&quot;}</a>
+  :dependencies [[org.clojure/clojure &ldquo;1.7.0&rdquo;]
+                [com.dayooliyide/morse-code &ldquo;0.1.0&rdquo;]])
+</code></pre></p>
+
+<p>Now restart the repl and use the morse-code.core namespace
+<pre><code class="clojure-repl">user=&gt; (use &lsquo;morse-code.core)
+nil
+</code></pre></p>
+
+<p>Initialise the connection to the board.</p>
+
+<p><em>Please note the following</em></p>
+
+<ul>
+<li><p>Note: if not done, the first use of the api will trigger the initialisation of a connection
+to the board which causes some blinking of the onboard led. This might lead to some confusion
+hence the reason to initialise the board before using the other functions</p></li>
+
+<li><p>Note: calling the init-board! fn will return a clojure map representation of the board and
+the connection to it</p></li>
+</ul>
+
+<pre><code class="clojure-repl">user=> (init-board!)
+</code></pre>
+
+<p>Now you can blink/flash the onboard LED for 1 second and then 5 seconds
+<pre><code class="clojure-repl">user=&gt; (blink! 1000)
+nil
+user=&gt; (blink! 5000)
+nil
+</code></pre></p>
+
+<p>You can flash the LED to represent a Morse dot (200 millis) or a dash (600 millis)
+<pre><code class="clojure-repl">user=&gt; (dot!)
+nil
+user=&gt; (dash!)
+nil
+</code></pre></p>
+
+<p>You can also transmit words
+<pre><code class="clojure-repl">user=&gt; (morse! &ldquo;SOS&rdquo;)
+nil
+</code></pre></p>
+
+<p>And also words
+<pre><code class="clojure-repl">user=&gt; (morse! &ldquo;Hello World&rdquo;)
+nil
+</code></pre></p>
+
+<p>Which brings us to the end of this post, I hope you have found it useful.</p>
+
+    </section>
+
+
+  <footer class="post-footer">
+
+
+    
+
+    
+
+
+
+
+
+<section class="author">
+  <h4><a href="http://dayooliyide.com/">Dayo Oliyide</a></h4>
+  
+  <p>Read <a href="http://dayooliyide.com/">more posts</a> by this author.</p>
+  
+  <div class="author-meta">
+    
+    
+  </div>
+</section>
+
+
+
+    
+<section class="share">
+  <h4>Share this post</h4>
+  <a class="icon-twitter" style="font-size: 1.4em" href="https://twitter.com/share?text=Using%20Clojure%20with%20Arduino%20-%20Part1&amp;url=http%3a%2f%2fdayooliyide.com%2fpost%2fclojure-arduino-part1%2f"
+      onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+      <span class="hidden">Twitter</span>
+  </a>
+  <a class="icon-facebook" style="font-size: 1.4em" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fdayooliyide.com%2fpost%2fclojure-arduino-part1%2f"
+      onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+      <span class="hidden">Facebook</span>
+  </a>
+  <a class="icon-pinterest" style="font-size: 1.4em" href="http://pinterest.com/pin/create/button/?url=http%3a%2f%2fdayooliyide.com%2fpost%2fclojure-arduino-part1%2f&amp;description=Using%20Clojure%20with%20Arduino%20-%20Part1"
+      onclick="window.open(this.href, 'pinterest-share','width=580,height=296');return false;">
+      <span class="hidden">Pinterest</span>
+  </a>
+  <a class="icon-google-plus" style="font-size: 1.4em" href="https://plus.google.com/share?url=http%3a%2f%2fdayooliyide.com%2fpost%2fclojure-arduino-part1%2f"
+     onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+      <span class="hidden">Google+</span>
+  </a>
+</section>
+
+
+
+    
+
+
+
+
+  </footer>
+</article>
+
+</main>
+    <footer class="site-footer clearfix">
+        <section class="copyright"><a href="">Seeking Clarity</a> All rights reserved - 2016</section>
+        
+        <section class="poweredby">Proudly generated by <a class="icon-hugo" href="http://gohugo.io">HUGO</a>, with <a class="icon-theme" href="https://github.com/vjeantet/hugo-theme-casper">Casper</a> theme</section>
+        
+    </footer>
+    </div>
+    <script type="text/javascript" src="http://dayooliyide.com/js/jquery.js"></script>
+    <script type="text/javascript" src="http://dayooliyide.com/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="http://dayooliyide.com/js/index.js"></script>
+    
+</body>
+</html>
+

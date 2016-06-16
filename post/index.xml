@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Seeking Clarity</title>
-    <link>http://dayooliyide.com/</link>
-    <description>Recent content on Seeking Clarity</description>
+    <title>Posts on Seeking Clarity</title>
+    <link>http://dayooliyide.com/post/</link>
+    <description>Recent content in Posts on Seeking Clarity</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
     <copyright>All rights reserved - 2016</copyright>
     <lastBuildDate>Thu, 16 Jun 2016 12:08:52 +0100</lastBuildDate>
-    <atom:link href="http://dayooliyide.com/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://dayooliyide.com/post/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Using Clojure with Arduino - Part1</title>
@@ -274,25 +274,6 @@ nil
 &lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;
 
 &lt;p&gt;Which brings us to the end of this post, I hope you have found it useful.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>About</title>
-      <link>http://dayooliyide.com/about/</link>
-      <pubDate>Tue, 10 May 2016 14:16:40 +0100</pubDate>
-      
-      <guid>http://dayooliyide.com/about/</guid>
-      <description>
-
-&lt;h2 id=&#34;about-me:6083a88ee3411b0d17ce02d738f69d47&#34;&gt;About Me&lt;/h2&gt;
-
-&lt;p&gt;Todo :)&lt;/p&gt;
-
-&lt;h2 id=&#34;about-this-blog:6083a88ee3411b0d17ce02d738f69d47&#34;&gt;About this blog&lt;/h2&gt;
-
-&lt;p&gt;This blog is about me sharing some of the knowledge and tips that I&amp;rsquo;ve acquired.&lt;br /&gt;
-I hope you find it of use.&lt;/p&gt;
 </description>
     </item>
     
