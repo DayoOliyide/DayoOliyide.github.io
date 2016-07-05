@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en-gb">
+<head>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  	<meta property="og:title" content=" Consuming Kafka&#39;s internal consumer offsets topic &middot;  Seeking Clarity" />
+  	<meta property="og:site_name" content="Seeking Clarity" />
+  	<meta property="og:url" content="http://dayooliyide.com/post/kafka-consumer-offsets-topic/" />
+
+    
+  	<meta property="og:type" content="article" />
+
+    <meta property="og:article:published_time" content="2016-07-05T15:09:52&#43;01:00" />
+
+    
+    <meta property="og:article:tag" content="Kafka" />
+    
+    <meta property="og:article:tag" content="Tips" />
+    
+    
+
+  <title>
+     Consuming Kafka&#39;s internal consumer offsets topic &middot;  Seeking Clarity
+  </title>
+
+    <meta name="description" content="The ability to simplify means to eliminate the unnecessary so that the necessary may speak" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="http://dayooliyide.com/images/favicon.ico">
+	  <link rel="apple-touch-icon" href="http://dayooliyide.com/images/apple-touch-icon.png" />
+
+    <link rel="stylesheet" type="text/css" href="http://dayooliyide.com/css/screen.css" />
+    <link rel="stylesheet" type="text/css" href="http://dayooliyide.com/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400|Inconsolata" />
+
+   
+   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.4.0/styles/hybrid.min.css">
+   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.4.0/highlight.min.js"></script>
+   <script>hljs.initHighlightingOnLoad();</script>
+   
+
+    
+      
+          <link href="http://dayooliyide.com/index.xml" rel="alternate" type="application/rss+xml" title="Seeking Clarity" />
+      
+      
+    
+    <meta name="generator" content="Hugo 0.15" />
+
+    <link rel="canonical" href="http://dayooliyide.com/post/kafka-consumer-offsets-topic/" />
+
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-41766081-2', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+    
+
+    
+</head>
+<body class="nav-closed">
+
+  <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
+    <ul>
+        
+        
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="/">Home</a>
+            </li>
+        
+            
+            <li class="nav-opened" role="presentation">
+            	<a href="/about/">About me</a>
+            </li>
+        
+    </ul>
+    
+    
+    <a class="subscribe-button icon-feed" href="http://dayooliyide.com/index.xml">Subscribe</a>
+    
+</div>
+<span class="nav-cover"></span>
+
+
+ <div class="site-wrapper">
+
+
+
+
+<header class="main-header post-head no-cover">
+  <nav class="main-nav clearfix">
+
+
+  
+  
+      <a class="menu-button" href="#"><span class="burger">&#9776;</span><span class="word">Menu</span></a>
+  
+  </nav>
+</header>
+
+
+
+<main class="content" role="main">
+
+
+
+
+  <article class="post post">
+
+    <header class="post-header">
+        <h1 class="post-title">Consuming Kafka&#39;s internal consumer offsets topic</h1>
+        <small></small>
+
+        <section class="post-meta">
+        
+          <time class="post-date" datetime="2016-07-05T15:09:52&#43;01:00">
+            Jul 5, 2016
+          </time>
+        
+         
+          <span class="post-tag small"><a href="http://dayooliyide.com/tags/kafka/">#Kafka</a></span>
+         
+          <span class="post-tag small"><a href="http://dayooliyide.com/tags/tips/">#Tips</a></span>
+         
+        </section>
+    </header>
+
+    <section class="post-content">
+      
+
+<p>Since version 0.8.2, kafka has had the ability to store consumer offsets in an
+internal compacted topic called <code>__consumer_offsets</code></p>
+
+<p>If you are interested in viewing the consumer offsets stored on the
+<code>__consumer_offsets</code>, you should do the following.</p>
+
+<ul>
+<li>Create a small config with the <code>exclude.internal.topics</code> property set to false</li>
+<li>Use the OffsetsMessageFormatter class as the formatter
+
+<ul>
+<li>For Kafka 0.8.2.x, it is <code>kafka.server.OffsetManager\$OffsetsMessageFormatter</code></li>
+<li>For Kafka 0.9.x.x and 0.10.0.0, it is <code>kafka.coordinator.GroupMetadataManager\$OffsetsMessageFormatter</code></li>
+</ul></li>
+<li>If you want to consume all consumer offsets from the beginning as opposed to just the
+latest, you&rsquo;ll need to add <code>--from-beginning</code> flag to the <code>kafka-console-consumer.sh</code> script</li>
+</ul>
+
+<p>For Kafka 0.8.2.x</p>
+
+<pre><code class="bash">#Create consumer config
+echo "exclude.internal.topics=false" > /tmp/consumer.config
+#Only consume the latest consumer offsets
+./kafka-console-consumer.sh --consumer.config /tmp/consumer.config \
+--formatter "kafka.server.OffsetManager\$OffsetsMessageFormatter" \
+--zookeeper localhost:2181 --topic __consumer_offsets
+
+</code></pre>
+
+<p>For Kafka 0.9.x.x and 0.10.0.0</p>
+
+<pre><code class="bash">#Create consumer config
+echo "exclude.internal.topics=false" > /tmp/consumer.config
+#Only consume the latest consumer offsets
+./kafka-console-consumer.sh --consumer.config /tmp/consumer.config \
+--formatter "kafka.coordinator.GroupMetadataManager\$OffsetsMessageFormatter" \
+--zookeeper localhost:2181 --topic __consumer_offsets
+
+</code></pre>
+
+<h3 id="notes:789d2f6f6c01457940bf459622e3cb03">Notes</h3>
+
+<ul>
+<li>From version 0.8.2, the old consumers will by default commit their offsets to zookeeper.
+This can be changed to storing on the <code>__consumer_offsets</code> topic by setting the consumer config
+property <code>offsets.storage=kafka</code>.
+The new consumers commit their offsets to the <code>__consumer_offsets</code></li>
+<li>For Kafka 0.9.x.x and above, you might notice that you&rsquo;ve consumed more messages, from
+<code>__consumer_offsets</code> topic, than were displayed. This is because the formatter has been changed to only work on Offset messages</li>
+</ul>
+
+    </section>
+
+
+  <footer class="post-footer">
+
+
+    
+
+    
+
+
+
+
+
+<section class="author">
+  <h4><a href="http://dayooliyide.com/">Dayo Oliyide</a></h4>
+  
+  <p>Read <a href="http://dayooliyide.com/">more posts</a> by this author.</p>
+  
+  <div class="author-meta">
+    
+    
+  </div>
+</section>
+
+
+
+    
+<section class="share">
+  <h4>Share this post</h4>
+  <a class="icon-twitter" style="font-size: 1.4em" href="https://twitter.com/share?text=Consuming%20Kafka%27s%20internal%20consumer%20offsets%20topic&amp;url=http%3a%2f%2fdayooliyide.com%2fpost%2fkafka-consumer-offsets-topic%2f"
+      onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+      <span class="hidden">Twitter</span>
+  </a>
+  <a class="icon-facebook" style="font-size: 1.4em" href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2fdayooliyide.com%2fpost%2fkafka-consumer-offsets-topic%2f"
+      onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+      <span class="hidden">Facebook</span>
+  </a>
+  <a class="icon-pinterest" style="font-size: 1.4em" href="http://pinterest.com/pin/create/button/?url=http%3a%2f%2fdayooliyide.com%2fpost%2fkafka-consumer-offsets-topic%2f&amp;description=Consuming%20Kafka%27s%20internal%20consumer%20offsets%20topic"
+      onclick="window.open(this.href, 'pinterest-share','width=580,height=296');return false;">
+      <span class="hidden">Pinterest</span>
+  </a>
+  <a class="icon-google-plus" style="font-size: 1.4em" href="https://plus.google.com/share?url=http%3a%2f%2fdayooliyide.com%2fpost%2fkafka-consumer-offsets-topic%2f"
+     onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+      <span class="hidden">Google+</span>
+  </a>
+</section>
+
+
+
+    
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  var disqus_shortname = 'seekingclarity';
+  var disqus_url = 'http:\/\/dayooliyide.com\/post\/kafka-consumer-offsets-topic\/';
+  (function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+
+
+
+  </footer>
+</article>
+
+</main>
+    <footer class="site-footer clearfix">
+        <section class="copyright"><a href="">Seeking Clarity</a> All rights reserved - 2016</section>
+        
+        <section class="poweredby">Proudly generated by <a class="icon-hugo" href="http://gohugo.io">HUGO</a>, with <a class="icon-theme" href="https://github.com/vjeantet/hugo-theme-casper">Casper</a> theme</section>
+        
+    </footer>
+    </div>
+    <script type="text/javascript" src="http://dayooliyide.com/js/jquery.js"></script>
+    <script type="text/javascript" src="http://dayooliyide.com/js/jquery.fitvids.js"></script>
+    <script type="text/javascript" src="http://dayooliyide.com/js/index.js"></script>
+    
+</body>
+</html>
+

@@ -7,8 +7,69 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-gb</language>
     <copyright>All rights reserved - 2016</copyright>
-    <lastBuildDate>Thu, 16 Jun 2016 12:08:52 +0100</lastBuildDate>
+    <lastBuildDate>Tue, 05 Jul 2016 15:09:52 +0100</lastBuildDate>
     <atom:link href="http://dayooliyide.com/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Consuming Kafka&#39;s internal consumer offsets topic</title>
+      <link>http://dayooliyide.com/post/kafka-consumer-offsets-topic/</link>
+      <pubDate>Tue, 05 Jul 2016 15:09:52 +0100</pubDate>
+      
+      <guid>http://dayooliyide.com/post/kafka-consumer-offsets-topic/</guid>
+      <description>
+
+&lt;p&gt;Since version 0.8.2, kafka has had the ability to store consumer offsets in an
+internal compacted topic called &lt;code&gt;__consumer_offsets&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;If you are interested in viewing the consumer offsets stored on the
+&lt;code&gt;__consumer_offsets&lt;/code&gt;, you should do the following.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Create a small config with the &lt;code&gt;exclude.internal.topics&lt;/code&gt; property set to false&lt;/li&gt;
+&lt;li&gt;Use the OffsetsMessageFormatter class as the formatter
+
+&lt;ul&gt;
+&lt;li&gt;For Kafka 0.8.2.x, it is &lt;code&gt;kafka.server.OffsetManager\$OffsetsMessageFormatter&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;For Kafka 0.9.x.x and 0.10.0.0, it is &lt;code&gt;kafka.coordinator.GroupMetadataManager\$OffsetsMessageFormatter&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;If you want to consume all consumer offsets from the beginning as opposed to just the
+latest, you&amp;rsquo;ll need to add &lt;code&gt;--from-beginning&lt;/code&gt; flag to the &lt;code&gt;kafka-console-consumer.sh&lt;/code&gt; script&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;For Kafka 0.8.2.x&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;bash&#34;&gt;#Create consumer config
+echo &#34;exclude.internal.topics=false&#34; &gt; /tmp/consumer.config
+#Only consume the latest consumer offsets
+./kafka-console-consumer.sh --consumer.config /tmp/consumer.config \
+--formatter &#34;kafka.server.OffsetManager\$OffsetsMessageFormatter&#34; \
+--zookeeper localhost:2181 --topic __consumer_offsets
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;For Kafka 0.9.x.x and 0.10.0.0&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;bash&#34;&gt;#Create consumer config
+echo &#34;exclude.internal.topics=false&#34; &gt; /tmp/consumer.config
+#Only consume the latest consumer offsets
+./kafka-console-consumer.sh --consumer.config /tmp/consumer.config \
+--formatter &#34;kafka.coordinator.GroupMetadataManager\$OffsetsMessageFormatter&#34; \
+--zookeeper localhost:2181 --topic __consumer_offsets
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;notes:789d2f6f6c01457940bf459622e3cb03&#34;&gt;Notes&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;From version 0.8.2, the old consumers will by default commit their offsets to zookeeper.
+This can be changed to storing on the &lt;code&gt;__consumer_offsets&lt;/code&gt; topic by setting the consumer config
+property &lt;code&gt;offsets.storage=kafka&lt;/code&gt;.
+The new consumers commit their offsets to the &lt;code&gt;__consumer_offsets&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;For Kafka 0.9.x.x and above, you might notice that you&amp;rsquo;ve consumed more messages, from
+&lt;code&gt;__consumer_offsets&lt;/code&gt; topic, than were displayed. This is because the formatter has been changed to only work on Offset messages&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Using Clojure with Arduino - Part1</title>
